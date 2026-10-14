@@ -86,10 +86,14 @@ function searchUpdates(){
 
 # Function to show help
 function helpPanel(){
-  echo -e "${yellowColour}[+] Instructions:${endColour}"
+  echo -e "${yellowColour}[+] Instructions:${endColour}\n"
   echo -e "  -u Search for updates"
-  echo -e "  -m <machine_name> Search for machine name"
-  echo -e "  -h                Show help"
+  echo -e "  -m <machine_name> Search by machine name"
+  echo -e "  -i <ip_Address> Search by IP Address"
+  echo -e "  -d <difficulty> List all machines in a selected Difficulty. Available difficulties are :
+                         Fácil - Media - Difícil - Insane 
+                it means: Easy - Medium - Hard - Insane"
+  echo -e "  -h Show help"
 }
 
 # Function to search a machine by name
@@ -115,13 +119,33 @@ function searchMachineByIp(){
 }
 
 
+function FilterByMachinesDifficulty(){
+    local difficulty=$1
+    echo "difficulty= $difficulty"
+    #checks that there are machines with that difficulty
+    results_check="$(cat bundle.js | grep "dificultad: \"$difficulty\"" )"
+
+    #shows name, ip, difficulty ( to double check) and youtube link of each matching machine.
+    if [ -n "$results_check" ] ; then 
+        echo -e "\n [+] These are the results for $difficulty ... \n "
+        cat bundle.js | grep -E "dificultad:[[:space:]]*\"$difficulty\"" -B 5 -A 5 | \
+            awk '/name:|ip:|youtube:|dificultad:/ { print } /youtube:/ { print "" }' 
+    else
+         echo -e"The available difficulties are : Fácil - Media - Difícil - Insane   try a new search"
+    fi
+   
+
+}
+
+
 
 # Processing options with getopts
-while getopts "m:h:u:i:" arg; do
+while getopts "m:h:u:i:d:" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachineName "$OPTARG" ;;
     i) searchMachineByIp "$OPTARG" ;;
+    d) FilterByMachinesDifficulty "$OPTARG" ;;
     h) helpPanel ;;
     *) helpPanel ;;
   esac
