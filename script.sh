@@ -92,10 +92,17 @@ function helpPanel(){
   echo -e "  -h                Show help"
 }
 
-# Function to seacrh a machine by name
+# Function to search a machine by name
 function searchMachine(){
   local machineName="$1"
-  echo -e "${greenColour}Searching machine: ${machineName}${endColour}"
+  echo -e "${greenColour}Searching machine name: ${machineName}${endColour}"
+
+  cat bundle.js | awk  "/name: \"$machineName\"/,/resuelta:/" | \
+    grep -vE "id:|sku:|resuelta" | tr -d '"' | tr -d ',' | sed 's/^ *//'
+    # the \ at the end is to continue on the next line.
+    # with awk we are determining a range of results based on how we receive the data
+    # with grep we are indicating parameters to ignore, with tr -d params to remove
+    # sed removes empty spaces at the begining.
 }
 
 # Processing options with getopts
