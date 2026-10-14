@@ -93,7 +93,7 @@ function helpPanel(){
 }
 
 # Function to search a machine by name
-function searchMachine(){
+function searchMachineName(){
   local machineName="$1"
   echo -e "${greenColour}Searching machine name: ${machineName}${endColour}"
 
@@ -105,11 +105,23 @@ function searchMachine(){
     # sed removes empty spaces at the begining.
 }
 
+function searchMachineByIp(){
+    local ipAddress="$1"
+    echo -e "ip address = $ipAddress"
+    machineName="$(cat bundle.js | grep "ip: \"$ipAddress\"" -B 3 | \
+        grep "name: " | awk 'NF{print $NF}' | tr -d '"' | tr -d ',')"
+        # search a machine by ip and tries to save the name on the var machineName
+    echo -e "\n[+] the machine that matches IP: $ipAddress is: $machineName "
+}
+
+
+
 # Processing options with getopts
-while getopts "m:h:u" arg; do
+while getopts "m:h:u:i:" arg; do
   case $arg in
     u) searchUpdates ;;
-    m) searchMachine "$OPTARG" ;;
+    m) searchMachineName "$OPTARG" ;;
+    i) searchMachineByIp "$OPTARG" ;;
     h) helpPanel ;;
     *) helpPanel ;;
   esac
