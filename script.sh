@@ -149,16 +149,27 @@ FilterByOs(){
     fi    
 }
 
+FilterByDifficulyAndOs(){
+    local localDifficulty=$1
+    local localOs=$2
+    echo -e "\n[+] searching by Difficulty: $localDifficulty and by Os : $localOs \n"
+
+}
 
 
 # Processing options with getopts
-while getopts "m:h:u:i:d:o:" arg; do
+while getopts "m:h:u:i:d:o:e:" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachineName "$OPTARG" ;;
     i) searchMachineByIp "$OPTARG" ;;
-    d) FilterByMachinesDifficulty "$OPTARG" ;;
-    o) FilterByOs "$OPTARG" ;;
+    d) FilterByMachinesDifficulty "$OPTARG";;
+    o) FilterByOs "$OPTARG";;
+    e)  
+        # Separating arguments using IFS and read (,) as delimitator
+        IFS=',' read -r difficulty os <<< "$OPTARG"
+        # calling the function with separated arguments
+        FilterByDifficulyAndOs "$difficulty" "$os";;
     h) helpPanel ;;
     *) helpPanel ;;
   esac
