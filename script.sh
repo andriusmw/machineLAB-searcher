@@ -25,6 +25,7 @@ trap ctrl_c INT
 # Function to seacrh updates
 function searchUpdates(){
   echo -e "${greenColour}Searching Updates...: ${endColour}"
+  # IF FILE BUNDLE.JS DOES NOT EXISTS THEN DOWNLOADS
     if [ ! -f bundle.js ]; then
         echo -e "\n [+] Downloading necessary files..."
         curl -s $main_url > bundle_temp.js
@@ -41,8 +42,17 @@ function searchUpdates(){
             return 1
         fi    
         echo -e "\n [+] All files downloaded."
+  # IF FILE BUNDLE.JS EXISTS THEN DOWNLOADS AND COMPARES    
     else
         echo -e "\n [+] The file bundle.js exists"
+        curl -s $main_url > bundle_temp.js
+        ./node_modules/.bin/js-beautify -r bundle_temp.js &>/dev/null
+        # indicates local path + -r to rewrite bundle_temp.js
+        # Compares with md5sum
+        md5_Downloaded_value=$(md5sum bundle_temp.js | awk '{print $1}')
+        md5_Local_value=$(md5sum bundle.js | awk '{print $1}')
+        echo -e "\n Downloaded version_MD5: ${md5_Downloaded_value}"
+        echo -e "\n Local version_MD5: ${md5_Local_value}"
     fi
 
 
