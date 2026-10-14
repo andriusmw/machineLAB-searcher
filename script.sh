@@ -10,6 +10,10 @@ purpleColour="\e[0;35m\033[1m"
 turquoiseColour="\e[0;36m\033[1m"
 grayColour="\e[0;37m\033[1m"
 
+
+# global variables
+main_url="https://htbmachines.github.io/bundle.js"
+
 # Function to handle Ctrl+C (INT)
 function ctrl_c(){
   echo -e "\n${redColour}[!] Exitting...${endColour}"
@@ -21,6 +25,27 @@ trap ctrl_c INT
 # Function to seacrh updates
 function searchUpdates(){
   echo -e "${greenColour}Searching Updates...: ${endColour}"
+    if [ ! -f bundle.js ]; then
+        echo -e "\n [+] Downloading necessary files..."
+        curl -s $main_url > bundle_temp.js
+        ./node_modules/.bin/js-beautify -r bundle_temp.js &>/dev/null
+        # indicates local path + -r to rewrite bundle_temp.js
+        mv bundle_temp.js bundle.js
+        if [ bundle.js ]; then
+            echo -e "\n [+] bundle.js formated..."
+            rm -f bundle_temp.js 
+        else 
+            echo -e "\n [+] There has been an error formatting bundle.js"
+             rm -f bundle_temp.js
+             rm -f bundle.js
+            return 1
+        fi    
+        echo -e "\n [+] All files downloaded."
+    else
+        echo -e "\n [+] The file bundle.js exists"
+    fi
+
+
 }
 
 
@@ -39,7 +64,7 @@ function searchMachine(){
 }
 
 # Processing options with getopts
-while getopts "m:h" arg; do
+while getopts "m:h:u" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachine "$OPTARG" ;;
