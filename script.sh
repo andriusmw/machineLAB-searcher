@@ -32,8 +32,9 @@ function searchUpdates(){
         ./node_modules/.bin/js-beautify -r bundle_temp.js &>/dev/null
         # indicates local path + -r to rewrite bundle_temp.js
         mv bundle_temp.js bundle.js
-        if [ bundle.js ]; then
-            echo -e "\n [+] bundle.js formated..."
+        # checks bundle.js was created
+        if [ -s bundle.js ]; then
+            echo -e "\n [+] bundle.js created and not empty..."
             rm -f bundle_temp.js 
         else 
             echo -e "\n [+] There has been an error formatting bundle.js"
@@ -48,11 +49,35 @@ function searchUpdates(){
         curl -s $main_url > bundle_temp.js
         ./node_modules/.bin/js-beautify -r bundle_temp.js &>/dev/null
         # indicates local path + -r to rewrite bundle_temp.js
-        # Compares with md5sum
+        # Shows MD5 of files
         md5_Downloaded_value=$(md5sum bundle_temp.js | awk '{print $1}')
         md5_Local_value=$(md5sum bundle.js | awk '{print $1}')
         echo -e "\n Downloaded version_MD5: ${md5_Downloaded_value}"
         echo -e "\n Local version_MD5: ${md5_Local_value}"
+        #  # compares the string value of those 2 vars
+        if [ "$md5_Downloaded_value" == "$md5_Local_value" ]; then
+           echo -e "\n you are already updated"
+           rm -f bundle_temp.js
+        else
+            echo -e "\n there is a new version"
+            sleep 2
+            echo -e "\n updating..."
+            sleep 2
+            rm bundle.js && mv bundle_temp.js bundle.js 
+            # checks if bundle.js was created
+            if [ -s bundle.js ]; then 
+                echo -e "\n Updated, go hack some machines!"
+                rm -f bundle_temp.js
+            else 
+                echo -e "\n there has been an error updating..."
+                rm -f bundle_temp.js
+                rm -f bundle.js
+                return 1
+            fi
+            
+        fi
+
+
     fi
 
 
