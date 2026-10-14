@@ -134,18 +134,31 @@ function FilterByMachinesDifficulty(){
          echo -e"The available difficulties are : Fácil - Media - Difícil - Insane   try a new search"
     fi
    
+}
 
+FilterByOs(){
+    local OperatingSystem=$1
+    os_results="$(cat bundle.js | grep "so: \"$OperatingSystem\"" -B 5 | grep "name: ")"
+    # Checks if os_results has something
+    if [ -n "$os_results" ]; then 
+        echo -e "\n[+] These are the machines matching the OS: $OperatingSystem ...\n"
+        cat bundle.js | grep "so: \"$OperatingSystem\"" -B 5 | grep "name: "| \
+            awk 'NF{print $NF}' | tr -d '"' | tr -d ',' | column
+    else
+        echo -e "\n[!] could NOT find any machine with that OS, available options are: Windows - Linux"
+    fi    
 }
 
 
 
 # Processing options with getopts
-while getopts "m:h:u:i:d:" arg; do
+while getopts "m:h:u:i:d:o:" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachineName "$OPTARG" ;;
     i) searchMachineByIp "$OPTARG" ;;
     d) FilterByMachinesDifficulty "$OPTARG" ;;
+    o) FilterByOs "$OPTARG" ;;
     h) helpPanel ;;
     *) helpPanel ;;
   esac
