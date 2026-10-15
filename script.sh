@@ -108,12 +108,15 @@ function searchMachineName(){
   echo -e "${greenColour}Searching machine name: ${machineName}${endColour}"
 
     echo -ne "${greenColour}"
-    cat bundle.js | awk  "/name: \"$machineName\"/,/resuelta:/" | \
-    grep -vE "id:|sku:|resuelta" | tr -d '"' | tr -d ',' | sed 's/^ *//'  
-    # the \ at the end is to continue on the next line.
-    # with awk we are determining a range of results based on how we receive the data
-    # with grep we are indicating parameters to ignore, with tr -d params to remove
-    # sed removes empty spaces at the begining.
+    
+   cat bundle.js | awk 'BEGIN{IGNORECASE=1} /name:.*'"$machineName"'/, /resuelta:/' | \
+  grep -vE "id:|sku:|resuelta" | tr -d '"' | tr -d ',' | sed 's/^ *//' | \
+  awk '/^name:/ { if (NR != 1) print "";  }{ print }'
+# this last awk prints a new "jump of line" each time it detects name except the first one
+# grep -vE excludes id,sku and resuelta from results.
+# tr -d cleans the output from symbols
+# at the FIRST awk we ignore case and use symbols to enable partial results no matter spaces or ""
+
     echo -ne "${endColour}"
 }
 
