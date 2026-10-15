@@ -185,7 +185,7 @@ FilterByDifficulyAndOs(){
 
 
 # Processing options with getopts
-while getopts "m:h:ui:d:o:e:" arg; do
+while getopts "m:hui:d:o:e:" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachineName "$OPTARG" ;;
