@@ -92,13 +92,21 @@ function helpPanel(){
   echo -e "${yellowColour}  -i <ip_Address> Search by IP Address ${endColour}"
   echo -e "${yellowColour}  -d <difficulty> List all machines in a selected Difficulty. Available difficulties are :
                          Fácil - Media - Difícil - Insane 
-                it means: Easy - Medium - Hard - Insane ${endColour}" 
+                it means: Easy - Medium - Hard - Insane  \n ${endColour}" 
   echo -e "${yellowColour}  -o <os> Filter machines by Operating System. ${endColour}"             
   echo -e "${yellowColour}  -e <difficulty,os> Search by Difficulty AND by Operating System. Use ',' as delimitator
                                 Example1 : -e Media,Windows 
                                 Example2 : -e Insane,Linux
                                 Note: Dificulties are the same of the -d parameter 
-                                ( Fácil - Media - Difícil - Insane) ${endColour}"
+                                ( Fácil - Media - Difícil - Insane) \n ${endColour}"
+echo -e "${yellowColour}  -s <Skill> Search by Skill. Example: -s SQLi  \
+                              
+  -s \"<Skill name>\" to search by compound names like 'Active Directory' for example.\n\
+                                Note the \" \" to encapsulate the skill name.\n\
+                                Example1: -s \"Active Directory\" \n\
+                                Example2: -s \"Local File Inclusion\"\n\
+                                ${endColour}"
+                             
   echo -e "${yellowColour}  -h Show help ${endColour}"
 }
 
@@ -183,9 +191,28 @@ FilterByDifficulyAndOs(){
 
 }
 
+SearchBySkill(){
+    local skill="$1"
+
+    check_skill="$(cat bundle.js | grep "skills: " -B 6 | grep "$skill" -i -B 6 |  grep "name: " | awk 'NF{print $NF}' \
+        | tr -d '"' | tr -d ',' | column)"
+
+    if [ "$check_skill" ]; then 
+        echo -e "\n searching by : $skill "
+        echo -e "\n ${greenColour}"
+        cat bundle.js | grep "skills: " -B 6  | grep "$skill" -i -B 6 | grep "name: " | awk 'NF{print $NF}' \
+        | tr -d '"' | tr -d ',' | column
+         echo -e "\n ${endColour}"
+    else
+        echo -e "\n ${redColour} [!] Could not find machines with that skill check the help menu and try again ${endColour}"
+    fi
+
+
+}
+
 
 # Processing options with getopts
-while getopts "m:hui:d:o:e:" arg; do
+while getopts "m:hui:d:o:e:s:" arg; do
   case $arg in
     u) searchUpdates ;;
     m) searchMachineName "$OPTARG" ;;
@@ -197,6 +224,7 @@ while getopts "m:hui:d:o:e:" arg; do
         IFS=',' read -r difficulty os <<< "$OPTARG"
         # calling the function with separated arguments
         FilterByDifficulyAndOs "$difficulty" "$os";;
+    s) SearchBySkill "$OPTARG" ;;
     h) helpPanel ;;
     *) helpPanel ;;
   esac
