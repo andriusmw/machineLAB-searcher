@@ -156,7 +156,7 @@ FilterByDifficulyAndOs(){
 
     search_results=$(cat bundle.js | grep "so: \"$localOs\"" -C 4 | grep "dificultad: \"$localDifficulty\"" -B 5 | \
              grep "name:" | awk 'NF{print $NF}' | tr -d '"' | tr -d ',' | column)
-    if [ -n search_results ]; then 
+    if [ -n "$search_results" ]; then 
         cat bundle.js | grep "so: \"$localOs\"" -C 4 | grep "dificultad: \"$localDifficulty\"" -B 5 | \
              grep "name:" | awk 'NF{print $NF}' | tr -d '"' | tr -d ',' | column
     else
